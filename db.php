@@ -1,5 +1,5 @@
 <?php
-$host = getenv('DB_HOST') ?: 'localhost';
+$host = getenv('DB_HOST') ?: 'sql307.infinityfree.com';
 $dbname = getenv('DB_NAME') ?: 'if0_38904313_phplinebot';
 $username = getenv('DB_USER') ?: 'if0_38904313';
 $password = getenv('DB_PASSWORD') ?: 'RyvwsdTAZ3LMj';
