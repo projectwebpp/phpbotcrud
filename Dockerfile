@@ -1,8 +1,8 @@
 FROM php:8.2-apache
 
-# ติดตั้ง dependencies ที่จำเป็นสำหรับ pdo_pgsql
-RUN apt-get update && apt-get install -y libpq-dev \
-    && docker-php-ext-install pdo_pgsql
+# ติดตั้ง dependencies และ extension ที่จำเป็นสำหรับ MySQL
+RUN apt-get update && apt-get install -y libmysqlclient-dev \
+    && docker-php-ext-install pdo_mysql
 
 # เปิดใช้งาน mod_rewrite (ถ้าต้องการ)
 RUN a2enmod rewrite
