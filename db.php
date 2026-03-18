@@ -1,12 +1,16 @@
 <?php
-$host = getenv('DB_HOST') ?: 'sql307.infinityfree.com';
-$dbname = getenv('DB_NAME') ?: 'if0_38904313_phplinebot';
-$username = getenv('DB_USER') ?: 'if0_38904313';
-$password = getenv('DB_PASSWORD') ?: 'RyvwsdTAZ3LMj';
+$host = getenv('DB_HOST') ?: 'localhost';
+$port = getenv('DB_PORT') ?: '5432';
+$dbname = getenv('DB_NAME') ?: 'crud_keyword';
+$username = getenv('DB_USER') ?: 'postgres';
+$password = getenv('DB_PASSWORD') ?: '';
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+    $pdo = new PDO($dsn, $username, $password, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+    ]);
 } catch (PDOException $e) {
     die("เชื่อมต่อฐานข้อมูลล้มเหลว: " . $e->getMessage());
 }
