@@ -1,8 +1,8 @@
 <?php
-$host = 'localhost';
-$dbname = 'if0_38904313_phplinebot';
-$username = 'if0_38904313';   // ปรับตามการตั้งค่าของคุณ
-$password = 'RyvwsdTAZ3LMj';       // ปรับตามการตั้งค่าของคุณ
+$host = getenv('DB_HOST') ?: 'localhost';
+$dbname = getenv('DB_NAME') ?: 'if0_38904313_phplinebot';
+$username = getenv('DB_USER') ?: 'if0_38904313';
+$password = getenv('DB_PASSWORD') ?: 'RyvwsdTAZ3LMj';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
