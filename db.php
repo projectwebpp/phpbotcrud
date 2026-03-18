@@ -1,9 +1,9 @@
 <?php
-$host = getenv('DB_HOST') ?: 'localhost';
-$port = getenv('DB_PORT') ?: '5432';
-$dbname = getenv('DB_NAME') ?: 'crud_keyword';
-$username = getenv('DB_USER') ?: 'postgres';
-$password = getenv('DB_PASSWORD') ?: '';
+$host = getenv('DB_HOST') ?: 'sql307.infinityfree.com';
+$port = getenv('DB_PORT') ?: '3306';
+$dbname = getenv('DB_NAME') ?: 'if0_38904313_phplinebot';
+$username = getenv('DB_USER') ?: 'if0_38904313';
+$password = getenv('DB_PASSWORD') ?: 'RyvwsdTAZ3LMj';
 
 try {
     $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
