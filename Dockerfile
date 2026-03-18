@@ -1,7 +1,7 @@
 FROM php:8.2-apache
 
-# ติดตั้ง dependencies และ extension ที่จำเป็นสำหรับ MySQL
-RUN apt-get update && apt-get install -y libmysqlclient-dev \
+# ติดตั้ง dependencies ที่จำเป็นสำหรับ pdo_mysql (ใช้ MariaDB development library)
+RUN apt-get update && apt-get install -y libmariadb-dev \
     && docker-php-ext-install pdo_mysql
 
 # เปิดใช้งาน mod_rewrite (ถ้าต้องการ)
