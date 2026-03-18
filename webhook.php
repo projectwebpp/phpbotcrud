@@ -1,36 +1,59 @@
 <?php
 require 'db.php';
 
-// รับเฉพาะ method POST
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['error' => 'Method not allowed']);
-    exit;
+$channelSecret     = 'd1de3446d316af162d19ba9ba7021e78';
+$channelAccessToken = 'dcrj7aT+sBfPm+KwOxWJj++NZiRHuATW+Hs28EnrSRH8kyDymdljq+SesFRXwIHeBg3YUDk92FIy1uAXhSE6gulHRNRCWklV42GKCK2lPNeKVvmw0wDkKmPOlVEQeBdrWi3dXnDOEd5xP8ufxXkKYwdB04t89/1O/w1cDnyilFU=';
+
+// ตรวจสอบ signature
+$body      = file_get_contents('php://input');
+$signature = $_SERVER['HTTP_X_LINE_SIGNATURE'] ?? '';
+$hash      = base64_encode(hash_hmac('sha256', $body, $channelSecret, true));
+
+if (!hash_equals($hash, $signature)) {
+    http_response_code(400);
+    exit('Invalid signature');
 }
 
-// รับข้อมูลที่ส่งมา (รองรับ JSON และ form-data)
-$input = file_get_contents('php://input');
-$data = json_decode($input, true);
+$events = json_decode($body, true)['events'] ?? [];
 
-if (!$data) {
-    // ถ้าไม่ใช่ JSON ให้ลองรับแบบ form-data
-    $data = $_POST;
+foreach ($events as $event) {
+    // รองรับเฉพาะ message ประเภท text
+    if ($event['type'] !== 'message' || $event['message']['type'] !== 'text') {
+        continue;
+    }
+
+    $replyToken = $event['replyToken'];
+    $keyword    = trim($event['message']['text']);
+
+    // ค้นหาใน DB
+    $stmt = $pdo->prepare("SELECT answer FROM responses WHERE keyword = ? LIMIT 1");
+    $stmt->execute([$keyword]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $replyText = $result
+        ? $result['answer']
+        : "ขออภัย ไม่พบคำตอบสำหรับ \"$keyword\"";
+
+    // ส่งกลับหา LINE
+    replyMessage($replyToken, $replyText, $channelAccessToken);
 }
 
-$keyword = $data['keyword'] ?? '';
+function replyMessage($replyToken, $text, $token) {
+    $data = [
+        'replyToken' => $replyToken,
+        'messages'   => [['type' => 'text', 'text' => $text]]
+    ];
 
-if (empty($keyword)) {
-    echo json_encode(['error' => 'Missing keyword']);
-    exit;
-}
-
-// ค้นหาคำตอบจากฐานข้อมูล (ใช้ LIKE หรือ = ก็ได้)
-$stmt = $pdo->prepare("SELECT answer FROM responses WHERE keyword = ? LIMIT 1");
-$stmt->execute([$keyword]);
-$result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if ($result) {
-    echo json_encode(['keyword' => $keyword, 'answer' => $result['answer']]);
-} else {
-    echo json_encode(['error' => 'Keyword not found']);
+    $ch = curl_init('https://api.line.me/v2/bot/message/reply');
+    curl_setopt_array($ch, [
+        CURLOPT_POST           => true,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER     => [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $token
+        ],
+        CURLOPT_POSTFIELDS => json_encode($data)
+    ]);
+    curl_exec($ch);
+    curl_close($ch);
 }
